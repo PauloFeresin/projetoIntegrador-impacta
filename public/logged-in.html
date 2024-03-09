@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    p {
+      text-align: center;
+    }
+
+    .logout-button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background-color: #ff5733;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .logout-button:hover {
+      background-color: #e64c00;
+    }
+  </style>
+</head>
+<body>
+    <div class="container">
+      <h1>Bem-vindo à Página Logada</h1>
+      <p>Você está logado agora!</p>
+      
+      <!-- Formulário para postar comentários -->
+      <form id="commentForm">
+        <label for="comment">Poste um Comentário:</label>
+        <textarea id="comment" name="comment" rows="4" required></textarea><br><br>
+        <button type="button" onclick="postarComentario()">Postar Comentário</button>
+      </form>
+  
+      <div id="comentarios">
+        <h2>Comentários</h2>
+        <ul id="listaComentarios"></ul>
+      </div>
+      
+      <button class="logout-button" onclick="logout()">Sair</button>
+    </div>
+  
+    <script>
+
+async function postarComentario() {
+  const textoComentario = document.getElementById('comment').value;
+
+  // Registrar os dados enviados para o servidor
+  console.log('Enviando comentário:', textoComentario);
+
+  try {
+    const resposta = await fetch('/comments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ comment: textoComentario })
+    });
+    const dados = await resposta.json();
+
+    if (resposta.ok) {
+      document.getElementById('comment').value = '';
+      exibirComentarios(dados);
+    } else {
+      console.error('Falha ao postar comentário:', dados.message);
+    }
+  } catch (error) {
+    console.error('Erro ao postar comentário:', error);
+  }
+}
+
+  
+async function exibirComentarios(novoComentario) {
+  try {
+    const resposta = await fetch('/comments');
+    const comentarios = await resposta.json();
+
+    if (resposta.ok) {
+      const listaComentarios = document.getElementById('listaComentarios');
+      listaComentarios.innerHTML = ''; // Limpar comentários anteriores
+
+      // Exibir novo comentário
+      if (novoComentario) {
+        const novoItemComentario = document.createElement('li');
+        novoItemComentario.textContent = novoComentario.comment; // Acessar a propriedade de texto do comentário
+        listaComentarios.prepend(novoItemComentario); // Exibir novo comentário no topo
+      }
+
+      // Exibir comentários anteriores
+      comentarios.forEach(comentario => {
+        const itemLista = document.createElement('li');
+        itemLista.textContent = comentario.comment; // Acessar a propriedade de texto do comentário
+        listaComentarios.appendChild(itemLista);
+      });
+    } else {
+      console.error('Falha ao obter comentários:', comentarios.message);
+    }
+  } catch (error) {
+    console.error('Erro ao obter comentários:', error);
+  }
+}
+
+
+  
+      function logout() {
+        // Executar ações de logout, se necessário
+        // Por exemplo, redirecionar o usuário para a página de login
+        window.location.href = '/login.html';
+      }
+  
+      // Exibir comentários existentes quando a página carregar
+      exibirComentarios();
+    </script>
+  </body>
+</html>
