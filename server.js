@@ -1,5 +1,7 @@
+// Paulo Feresin - RA: 2200613
+
 const express = require("express");
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 const bodyParser = require("body-parser");
 const path = require("path");
 
@@ -102,6 +104,15 @@ async function handleComments(req, res) {
     } else if (req.method === "GET") {
       const comments = await collection.find().toArray();
       res.status(200).json(comments);
+    } else if (req.method === "DELETE") {
+      const commentId = new ObjectId(req.params.id);
+      const result = await collection.deleteOne({ _id: commentId });
+
+      if (result.deletedCount === 1) {
+        res.status(200).json({ message: "Comentário deletado com sucesso" });
+      } else {
+        res.status(404).json({ message: "Comentário não encontrado" });
+      }
     }
   } catch (error) {
     console.error("Erro ao manipular comentários:", error);
@@ -111,7 +122,9 @@ async function handleComments(req, res) {
   }
 }
 
-app.route("/comments").post(handleComments).get(handleComments);
+app.post("/comments", handleComments);
+app.get("/comments", handleComments);
+app.delete("/comments/:id", handleComments);
 
 app.listen(port, () => {
   console.log(`Servidor está rodando em http://localhost:${port}`);
