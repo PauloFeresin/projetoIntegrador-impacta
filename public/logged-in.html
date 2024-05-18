@@ -44,6 +44,23 @@
     .logout-button:hover {
       background-color: #e64c00;
     }
+
+    .comment-container {
+      margin-bottom: 10px;
+    }
+
+    .delete-button {
+      background-color: #ff3333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .delete-button:hover {
+      background-color: #e60000;
+    }
   </style>
 </head>
 <body>
@@ -64,6 +81,7 @@
       </div>
       
       <button class="logout-button" onclick="logout()">Sair</button>
+      
     </div>
   
     <script>
@@ -109,6 +127,11 @@ async function exibirComentarios(novoComentario) {
       if (novoComentario) {
         const novoItemComentario = document.createElement('li');
         novoItemComentario.textContent = novoComentario.comment; // Acessar a propriedade de texto do comentário
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'delete-button';
+        deleteButton.onclick = () => deleteComment(novoComentario._id);
+        novoItemComentario.appendChild(deleteButton);
         listaComentarios.prepend(novoItemComentario); // Exibir novo comentário no topo
       }
 
@@ -116,6 +139,11 @@ async function exibirComentarios(novoComentario) {
       comentarios.forEach(comentario => {
         const itemLista = document.createElement('li');
         itemLista.textContent = comentario.comment; // Acessar a propriedade de texto do comentário
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.className = 'delete-button';
+        deleteButton.onclick = () => deleteComment(comentario._id);
+        itemLista.appendChild(deleteButton);
         listaComentarios.appendChild(itemLista);
       });
     } else {
@@ -128,9 +156,31 @@ async function exibirComentarios(novoComentario) {
 
 
   
+async function deleteComment(commentId) {
+  console.log('Attempting to delete comment with ID:', commentId);
+
+
+  try {
+    const response = await fetch(`/comments/${commentId}`, {
+      method: 'DELETE',
+    });
+    if (response.ok) {
+      exibirComentarios();
+      alert('Comentário deletado com sucesso!');
+    } else {
+      const data = await response.json();
+      alert(data.message);
+    }
+  } catch (error) {
+    console.error('Erro ao deletar comentário:', error);
+    alert('Ocorreu um erro ao deletar o comentário.');
+  }
+}
+
+
+  
       function logout() {
-        // Executar ações de logout, se necessário
-        // Por exemplo, redirecionar o usuário para a página de login
+
         window.location.href = '/login.html';
       }
   
