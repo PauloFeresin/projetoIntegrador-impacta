@@ -104,6 +104,21 @@ async function handleComments(req, res) {
     } else if (req.method === "GET") {
       const comments = await collection.find().toArray();
       res.status(200).json(comments);
+    } else if (req.method === "PUT") {
+      // Adicionando a rota PUT para edição de comentários
+      const { comment } = req.body;
+      const commentId = new ObjectId(req.params.id);
+
+      const result = await collection.updateOne(
+        { _id: commentId },
+        { $set: { comment: comment } }
+      );
+
+      if (result.matchedCount === 1) {
+        res.status(200).json({ message: "Comentário editado com sucesso" });
+      } else {
+        res.status(404).json({ message: "Comentário não encontrado" });
+      }
     } else if (req.method === "DELETE") {
       const commentId = new ObjectId(req.params.id);
       const result = await collection.deleteOne({ _id: commentId });
@@ -124,6 +139,7 @@ async function handleComments(req, res) {
 
 app.post("/comments", handleComments);
 app.get("/comments", handleComments);
+app.put("/comments/:id", handleComments); // Adicionando a rota PUT para edição de comentários
 app.delete("/comments/:id", handleComments);
 
 app.listen(port, () => {
